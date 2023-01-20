@@ -11,13 +11,17 @@
   }
 }
 .todoDetails {
-  display: flex;
+  // display: flex;
+  width: 100%;
+  padding-right: 10px;
   align-items: center;
   justify-content: flex-start;
   gap: 1rem;
 }
 .svgBox {
   flex-basis: 25px;
+  width: 25px;
+  margin-right: 10px;
   flex-shrink: 0;
   height: 25px;
   border-radius: 2px;
@@ -39,8 +43,15 @@
     justify-content: center;
   }
 }
+
+.todoDescriptionBox {
+  display: flex;
+  margin-bottom: 10px;
+}
 .texts {
   display: flex;
+  width: 100%;
+  padding: 0 10px;
   // flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
@@ -62,6 +73,7 @@
   font-weight: 300;
   margin-top: -0.2rem;
   color: var(--black-2);
+  width: 30%;
 }
 .todoActions {
   display: flex;

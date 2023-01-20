@@ -54,8 +54,9 @@ function RemindItem({ remind, onUpdateRemind, onDeleteRemind }) {
     <>
       <motion.div variants={child} className={styles.item}>
         <div className={styles.todoDetails}>
-          <CheckButton checked={checked} handleCheck={handleCheck} />
-          <div className={styles.texts}>
+          <div className={styles.todoDescriptionBox}>
+            <CheckButton checked={checked} handleCheck={handleCheck} />
+
             <p
               className={getClasses([
                 styles.todoText,
@@ -64,14 +65,17 @@ function RemindItem({ remind, onUpdateRemind, onDeleteRemind }) {
             >
               {remind.description}
             </p>
+          </div>
+          <div className={styles.texts}>
             <p className={styles.time}>created: {remind.created_at}</p>
+
             <p className={styles.time}>deadline: {remind.deadline_at}</p>
-            {remind.finished_at !== "" && remind.finished_at !== null && (
-              <p className={styles.time}>finished: {remind.finished_at}</p>
-            )}
-            {/* <p className={styles.time}>
-              finished: {remind.finished_at ? remind.finished_at : "None"}
-            </p> */}
+
+            <p className={styles.time}>
+              {remind.finished_at !== "" && remind.finished_at !== null
+                ? "finished : " + remind.finished_at
+                : ""}
+            </p>
           </div>
         </div>
 
