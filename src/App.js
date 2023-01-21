@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import PageTitle from "./Components/PageTitle";
 import AppHeader from "./Components/AppHeader";
 import AppContent from "./Components/AppContent";
 import styles from "./styles/modules/app.module.scss";
-// import axios from "./utils/axios";
+import axios from "./utils/axios";
 
 const initialReminds = [
   {
@@ -60,26 +60,29 @@ const initialReminds = [
 function App() {
   // const [reminds, setReminds] = useState(null);
 
-  const [testReminds, setTestReminds] = useState(initialReminds);
+  const [testReminds, setTestReminds] = useState([]);
   const [filteredReminds, setFilteredReminds] = useState(testReminds);
 
-  const getAllReminds = (cursor = 1, limit = 10) => {
+  const getAllReminds = async (cursor = 0, limit = 10) => {
     console.log("getAllReminds");
     try {
-      // await axios
-      // .get("/remind", { params: { cursor, limit } })
-      // .then((result) => setReminds(result.data));
+      await axios
+        .get(`/remind?cursor=${cursor}&limit=${limit}`)
+        .then((result) => {
+          console.log(result);
+          setFilteredReminds(result.data);
+        });
       // ! delete
-      setFilteredReminds(testReminds);
+      // setFilteredReminds(testReminds);
       //! delete
     } catch (error) {
       console.log(error);
     }
   };
 
-  useEffect(() => {
-    setFilteredReminds(testReminds);
-  }, [testReminds]);
+  // useEffect(() => {
+  //   setFilteredReminds(testReminds);
+  // }, [testReminds]);
 
   useEffect(() => {
     getAllReminds();
@@ -91,9 +94,9 @@ function App() {
     console.log(data);
 
     try {
-      // await axios.post("/remind", data);
+      await axios.post("/remind", data).then((res) => console.log(res));
       //!remove
-      setTestReminds([...testReminds, data]);
+      // setTestReminds([...testReminds, data]);
       //!remove
     } catch (error) {
       console.log(error);
@@ -119,33 +122,39 @@ function App() {
     }
   };
 
-  const getCompletedReminds = async (cursor = 1, limit = 10) => {
+  const getCompletedReminds = async (cursor = 0, limit = 10) => {
     console.log("getCompletedReminds");
 
     try {
-      // await axios
-      // .get("/completed", { params: { cursor, limit } })
-      // .then((result) => setReminds(result.data));
+      await axios
+        .get(`/completed?cursor=${cursor}&limit=${limit}`)
+        .then((result) => {
+          console.log(result);
+          setFilteredReminds(result.data);
+        });
       // ! delete
-      setFilteredReminds(
-        testReminds.filter((remind) => remind.completed === true)
-      );
+      // setFilteredReminds(
+      //   testReminds.filter((remind) => remind.completed === true)
+      // );
       // ! delete
     } catch (error) {
       console.log(error);
     }
   };
 
-  const getCurrentReminds = async (cursor = 1, limit = 10) => {
+  const getCurrentReminds = async (cursor = 0, limit = 10) => {
     console.log("getCurrentReminds");
     try {
-      // await axios
-      // .get("/current", { params: { cursor, limit } })
-      // .then((result) => setReminds(result.data));
+      await axios
+        .get(`/current?cursor=${cursor}&limit=${limit}`)
+        .then((result) => {
+          console.log(result);
+          setFilteredReminds(result.data);
+        });
       // ! delete
-      setFilteredReminds(
-        testReminds.filter((remind) => remind.completed === false)
-      );
+      // setFilteredReminds(
+      //   testReminds.filter((remind) => remind.completed === false)
+      // );
       // ! delete
     } catch (error) {
       console.log(error);
@@ -155,8 +164,8 @@ function App() {
   const deleteRemind = async (id) => {
     console.log(`deleted remind with id ${id} from App.js`);
     try {
-      setTestReminds(testReminds.filter((remind) => remind.id !== id)); //!remove
-      // await axios.delete(`/remind/${id}`);
+      // setTestReminds(testReminds.filter((remind) => remind.id !== id)); //!remove
+      await axios.delete(`/remind/${id}`).then((res) => console.log(res));
     } catch (error) {
       console.log(error);
     }

@@ -64,11 +64,10 @@ function RemindModal({
       if (type === "add") {
         onCreate({
           description: description,
-          id: uuid(),
-          created_at: moment(new Date()).format("YYYY-MM-DD"),
-          deadline_at: moment(deadline_at).format("YYYY-MM-DD"),
-          completed: Boolean(completed),
-          finished_at: null,
+          created_at: moment(new Date()).format("DD.MM.YYYY, HH:MM:SS"),
+          deadline_at: moment(deadline_at).format("YYYY-MM-DDTHH:MM"),
+          // completed: Boolean(completed),
+          // finished_at: null,
         });
         toast.success("Task Added Successfully");
         setDeadline_at(moment(new Date()).format("YYYY-MM-DD"));
@@ -161,18 +160,20 @@ function RemindModal({
               </label>
 
               {/* status */}
-              <label htmlFor="status">
-                Status
-                <select
-                  name="status"
-                  id="status"
-                  value={completed}
-                  onChange={(e) => setCompleted(e.target.value)}
-                >
-                  <option value={false}>Current</option>
-                  <option value={true}>Completed</option>
-                </select>
-              </label>
+              {type === "update" && (
+                <label htmlFor="status">
+                  Status
+                  <select
+                    name="status"
+                    id="status"
+                    value={completed}
+                    onChange={(e) => setCompleted(e.target.value)}
+                  >
+                    <option value={false}>Current</option>
+                    <option value={true}>Completed</option>
+                  </select>
+                </label>
+              )}
 
               <div className={styles.buttonContainer}>
                 <Button type="submit" variant="primary">
