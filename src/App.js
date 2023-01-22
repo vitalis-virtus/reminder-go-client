@@ -55,25 +55,74 @@ const initialReminds = [
     finished_at: null,
     completed: false,
   },
+  {
+    id: "7",
+    description: "test7",
+    created_at: "2023-03-01",
+    deadline_at: "2023-03-30",
+    finished_at: null,
+    completed: false,
+  },
+  {
+    id: "8",
+    description: "test8",
+    created_at: "2023-03-01",
+    deadline_at: "2023-03-30",
+    finished_at: null,
+    completed: false,
+  },
+  {
+    id: "9",
+    description: "test9",
+    created_at: "2023-03-01",
+    deadline_at: "2023-03-30",
+    finished_at: null,
+    completed: false,
+  },
+  {
+    id: "10",
+    description: "test10",
+    created_at: "2023-03-01",
+    deadline_at: "2023-03-30",
+    finished_at: null,
+    completed: false,
+  },
 ];
 
 function App() {
   // const [reminds, setReminds] = useState(null);
 
-  const [testReminds, setTestReminds] = useState([]);
-  const [filteredReminds, setFilteredReminds] = useState(testReminds);
+  const [testReminds, setTestReminds] = useState(initialReminds);
+  const [filteredReminds, setFilteredReminds] = useState([]);
+  const [cursor, setCursor] = useState(0);
+  const [limit, setLimit] = useState(5);
 
-  const getAllReminds = async (cursor = 0, limit = 10) => {
+  const getAllReminds = async (cursor, limit) => {
     console.log("getAllReminds");
+    console.log("cursor: ", cursor, "limit: ", limit);
+    let limitIter = 0;
     try {
-      await axios
-        .get(`/remind?cursor=${cursor}&limit=${limit}`)
-        .then((result) => {
-          console.log(result);
-          setFilteredReminds(result.data);
-        });
+      // await axios
+      //   .get(`/remind?cursor=${cursor}&limit=${limit}`)
+      //   .then((result) => {
+      //     console.log(result);
+      //     setFilteredReminds(result.data);
+      //   });
       // ! delete
-      // setFilteredReminds(testReminds);
+
+      setFilteredReminds([
+        ...filteredReminds,
+        ...initialReminds.filter((remind) => {
+          if (remind.id > cursor && limitIter < limit) {
+            console.log(remind);
+            limitIter++;
+            return true;
+          }
+
+          return false;
+        }),
+      ]);
+
       //! delete
     } catch (error) {
       console.log(error);
@@ -85,7 +134,7 @@ function App() {
   // }, [testReminds]);
 
   useEffect(() => {
-    getAllReminds();
+    getAllReminds(cursor, limit);
     // eslint-disable-next-line no-use-before-define, react-hooks/exhaustive-deps
   }, []); //[] only fires one time when the compent loads
 
@@ -94,9 +143,9 @@ function App() {
     console.log(data);
 
     try {
-      await axios.post("/remind", data).then((res) => console.log(res));
+      // await axios.post("/remind", data).then((res) => console.log(res));
       //!remove
-      // setTestReminds([...testReminds, data]);
+      setTestReminds([...testReminds, data]);
       //!remove
     } catch (error) {
       console.log(error);
@@ -126,16 +175,16 @@ function App() {
     console.log("getCompletedReminds");
 
     try {
-      await axios
-        .get(`/completed?cursor=${cursor}&limit=${limit}`)
-        .then((result) => {
-          console.log(result);
-          setFilteredReminds(result.data);
-        });
+      // await axios
+      //   .get(`/completed?cursor=${cursor}&limit=${limit}`)
+      //   .then((result) => {
+      //     console.log(result);
+      //     setFilteredReminds(result.data);
+      //   });
       // ! delete
-      // setFilteredReminds(
-      //   testReminds.filter((remind) => remind.completed === true)
-      // );
+      setFilteredReminds(
+        testReminds.filter((remind) => remind.completed === true)
+      );
       // ! delete
     } catch (error) {
       console.log(error);
@@ -145,16 +194,16 @@ function App() {
   const getCurrentReminds = async (cursor = 0, limit = 10) => {
     console.log("getCurrentReminds");
     try {
-      await axios
-        .get(`/current?cursor=${cursor}&limit=${limit}`)
-        .then((result) => {
-          console.log(result);
-          setFilteredReminds(result.data);
-        });
+      // await axios
+      //   .get(`/current?cursor=${cursor}&limit=${limit}`)
+      //   .then((result) => {
+      //     console.log(result);
+      //     setFilteredReminds(result.data);
+      //   });
       // ! delete
-      // setFilteredReminds(
-      //   testReminds.filter((remind) => remind.completed === false)
-      // );
+      setFilteredReminds(
+        testReminds.filter((remind) => remind.completed === false)
+      );
       // ! delete
     } catch (error) {
       console.log(error);
@@ -164,8 +213,8 @@ function App() {
   const deleteRemind = async (id) => {
     console.log(`deleted remind with id ${id} from App.js`);
     try {
-      // setTestReminds(testReminds.filter((remind) => remind.id !== id)); //!remove
-      await axios.delete(`/remind/${id}`).then((res) => console.log(res));
+      // await axios.delete(`/remind/${id}`).then((res) => console.log(res));
+      setTestReminds(testReminds.filter((remind) => remind.id !== id)); //!remove
     } catch (error) {
       console.log(error);
     }
@@ -186,6 +235,7 @@ function App() {
             reminds={filteredReminds}
             onUpdateRemind={updateRemind}
             onDeleteRemind={deleteRemind}
+            onGetAllreminds={getAllReminds}
           />
         </div>
       </div>
