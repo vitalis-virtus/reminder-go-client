@@ -12,12 +12,14 @@
   --black-1: #2f303d; //*
   --black-2: #585858;
   --bg-1: #f8f8ff;
-  --bg-2: #91d7ff; //*
+  --bg-2: #91d7ffc2; //*
   --bg-3: #cccdde;
   --gray-1: #eee;
   --gray-2: #dedfe1;
-  --black: black;
+  --black: rgb(48, 47, 47);
   --white: white;
+  --white-transparent: rgba(255, 255, 255, 0.521);
+  --yellow: rgb(249, 252, 69);
 }
 
 html {
@@ -36,7 +38,10 @@ body {
 }
 
 .container {
+  padding: 2rem 0 2rem;
   width: 90%;
   max-width: 1200px;
+  min-height: 100vh;
   margin: 0 auto;
+  // text-align: center;
 }

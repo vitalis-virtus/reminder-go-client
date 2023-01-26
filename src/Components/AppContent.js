@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import RemindItem from "./RemindItem";
 import styles from "../styles/modules/app.module.scss";
+import Button from "./Button";
 
 const container = {
   hidden: { opacity: 1 },
@@ -22,7 +23,12 @@ const child = {
   },
 };
 
-function AppContent({ reminds, onUpdateRemind, onDeleteRemind }) {
+function AppContent({
+  reminds,
+  onUpdateRemind,
+  onDeleteRemind,
+  onGetAllreminds,
+}) {
   return (
     <motion.div
       variants={container}
@@ -32,14 +38,25 @@ function AppContent({ reminds, onUpdateRemind, onDeleteRemind }) {
     >
       <AnimatePresence>
         {reminds.length ? (
-          reminds.map((remind) => (
-            <RemindItem
-              remind={remind}
-              key={remind.id}
-              onUpdateRemind={onUpdateRemind}
-              onDeleteRemind={onDeleteRemind}
-            />
-          ))
+          <div>
+            {reminds.map((remind) => (
+              <RemindItem
+                remind={remind}
+                key={remind.id}
+                onUpdateRemind={onUpdateRemind}
+                onDeleteRemind={onDeleteRemind}
+              />
+            ))}
+            <Button
+              variant="more"
+              type="button"
+              onClick={() => {
+                onGetAllreminds(5, 5);
+              }}
+            >
+              Load more
+            </Button>
+          </div>
         ) : (
           <motion.p className={styles.emptyText} variants={child}>
             No Todo Found
