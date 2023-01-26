@@ -5,7 +5,6 @@ import Button from "./Button";
 import toast from "react-hot-toast";
 import { AnimatePresence, motion } from "framer-motion";
 import * as moment from "moment";
-import { v4 as uuid } from "uuid";
 
 const dropin = {
   hidden: {
@@ -39,7 +38,7 @@ function RemindModal({
   const [description, setDescription] = useState("");
   const [completed, setCompleted] = useState(false);
   const [deadline_at, setDeadline_at] = useState(
-    moment(new Date()).format("YYYY-MM-DD")
+    moment(new Date()).format("YYYY-MM-DDTHH:MM")
   );
 
   useEffect(() => {
@@ -47,11 +46,11 @@ function RemindModal({
       setDescription(remind.description);
       setCompleted(remind.completed);
       setDeadline_at(remind.deadline_at);
-    } else {
+    } else if (type === "add") {
       setDescription("");
       setCompleted(false);
     }
-  }, [modalOpen, type, remind]);
+  }, [modalOpen, remind, type]);
 
   const handleSumbit = (e) => {
     e.preventDefault();
@@ -69,7 +68,7 @@ function RemindModal({
           // completed: Boolean(completed),
           // finished_at: null,
         });
-        toast.success("Task Added Successfully");
+        // toast.success("Task Added Successfully");
         setDeadline_at(moment(new Date()).format("YYYY-MM-DD"));
         setModalOpen(false);
       }
@@ -79,20 +78,19 @@ function RemindModal({
           remind.completed !== completed ||
           remind.deadline_at !== deadline_at
         ) {
-          console.log(typeof completed);
           onUpdate({
             ...remind,
             description,
             completed: completed === "true" ? true : false,
             deadline_at,
-            finished_at:
-              remind.finished_at === "" || remind.finished_at === null
-                ? moment(new Date()).format("YYYY-MM-DD")
-                : "",
+            // finished_at:
+            //   remind.finished_at === "" || remind.finished_at === null
+            //     ? moment(new Date()).format("YYYY-MM-DD")
+            //     : "",
           });
-          toast.success("Successfully changed");
+          // toast.success("Successfully changed");
         } else {
-          toast.error("No Changes Made");
+          // toast.error("No Changes Made");
           return;
         }
       }
@@ -148,10 +146,10 @@ function RemindModal({
               <label htmlFor="deadlineAt">
                 Deadline
                 <input
-                  value={deadline_at}
+                  value={moment(deadline_at).format("YYYY-MM-DDTHH:MM")}
                   placeholder={deadline_at}
-                  type="date"
-                  pattern="\d{4}-\d{2}-\d{2}"
+                  type="datetime-local"
+                  // pattern="\d{4}-\d{2}-\d{2}"
                   id="deadlineAt"
                   onChange={(e) => {
                     setDeadline_at(e.target.value);
@@ -160,7 +158,7 @@ function RemindModal({
               </label>
 
               {/* status */}
-              {type === "update" && (
+              {/* {type === "update" && (
                 <label htmlFor="status">
                   Status
                   <select
@@ -173,7 +171,7 @@ function RemindModal({
                     <option value={true}>Completed</option>
                   </select>
                 </label>
-              )}
+              )} */}
 
               <div className={styles.buttonContainer}>
                 <Button type="submit" variant="primary">

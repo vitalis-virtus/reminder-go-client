@@ -16,7 +16,7 @@ const child = {
   },
 };
 
-function RemindItem({ remind, onUpdateRemind, onDeleteRemind }) {
+function RemindItem({ remind, onUpdateRemind, onDeleteRemind, key }) {
   const [checked, setChecked] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
 
@@ -42,18 +42,20 @@ function RemindItem({ remind, onUpdateRemind, onDeleteRemind }) {
 
     onUpdateRemind({
       ...remind,
-      finished_at:
-        remind.finished_at === "" || remind.finished_at === null
-          ? moment(new Date()).format("YYYY-MM-DD")
-          : "",
+      // finished_at:
+      //   remind.finished_at === "" ||
+      //   remind.finished_at === null ||
+      //   remind.finished_at === undefined
+      //     ? moment(new Date()).format("YYYY-DD_MMTHH:MM:SS")
+      //     : "",
       completed: !checked,
     });
   };
 
   return (
     <>
-      <motion.div variants={child} className={styles.item}>
-        <div className={styles.todoDetails}>
+      <motion.div key={key} variants={child} className={styles.item}>
+        <div className={styles.todoDetails} key={key}>
           <div className={styles.todoDescriptionBox}>
             <CheckButton checked={checked} handleCheck={handleCheck} />
 
@@ -67,14 +69,18 @@ function RemindItem({ remind, onUpdateRemind, onDeleteRemind }) {
             </p>
           </div>
           <div className={styles.texts}>
-            <p className={styles.time}>created: {remind.created_at}</p>
-
-            <p className={styles.time}>deadline: {remind.deadline_at}</p>
+            <p className={styles.time}>
+              created: {moment(remind.created_at).format("DD-MM-YYYY HH:MM:SS")}
+            </p>
 
             <p className={styles.time}>
-              {remind.finished_at !== "" && remind.finished_at !== null
-                ? "finished : " + remind.finished_at
-                : ""}
+              deadline:{" "}
+              {moment(remind.deadline_at).format("DD-MM-YYYY HH:MM:SS")}
+            </p>
+
+            <p className={styles.time}>
+              {remind.completed &&
+                moment(remind.finished_at).format("DD-MM-YYYY HH:MM:SS")}
             </p>
           </div>
         </div>

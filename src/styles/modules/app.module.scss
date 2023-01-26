@@ -1,3 +1,8 @@
+.bg_container {
+  background-image: url("https://r4.wallpaperflare.com/wallpaper/319/609/287/graffiti-street-art-colorful-wall-wallpaper-06a83ee7291e6502fd92e823b417431e.jpg");
+  background-size: cover;
+}
+
 .app__wrapper {
   max-width: 750px;
   width: 100%;
@@ -8,7 +13,14 @@
   align-items: center;
   justify-content: space-between;
   height: 60px;
+  margin-bottom: 10px;
 }
+
+.header_button {
+  display: flex;
+  justify-content: space-between;
+}
+
 .content__wrapper {
   background-color: var(--bg-2);
   padding: 2rem;
