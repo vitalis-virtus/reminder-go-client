@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import RemindItem from "./RemindItem";
 import styles from "../styles/modules/app.module.scss";
 import Button from "./Button";
+
+import Context from "../utils/context";
 
 const container = {
   hidden: { opacity: 1 },
@@ -25,10 +27,36 @@ const child = {
 
 function AppContent({
   reminds,
+  noMoreReminds,
   onUpdateRemind,
   onDeleteRemind,
-  onGetAllreminds,
+  onGetAll,
+  onGetCompleted,
+  onGetCurrent,
+  cursor,
 }) {
+  const [context, setContext] = useContext(Context);
+
+  const onLoadMoreButton = useCallback(
+    (type) => {
+      switch (type) {
+        case "all":
+          onGetAll(cursor);
+          break;
+        case "completed":
+          onGetCompleted(cursor, context.timeRange);
+          break;
+        case "current":
+          onGetCurrent(cursor);
+          break;
+
+        default:
+          break;
+      }
+    },
+    [cursor]
+  );
+
   return (
     <motion.div
       variants={container}
@@ -42,20 +70,24 @@ function AppContent({
             {reminds.map((remind) => (
               <RemindItem
                 remind={remind}
-                key={remind.id}
+                key={remind.id ? remind.id : Math.random()}
                 onUpdateRemind={onUpdateRemind}
                 onDeleteRemind={onDeleteRemind}
               />
             ))}
-            <Button
-              variant="more"
-              type="button"
-              onClick={() => {
-                onGetAllreminds(5, 5);
-              }}
-            >
-              Load more
-            </Button>
+
+            {/* we render "load more" button if we have more reminds in database and we can fetch them */}
+            {!noMoreReminds && (
+              <Button
+                variant="more"
+                type="button"
+                onClick={() => {
+                  onLoadMoreButton(context.filter);
+                }}
+              >
+                Load more
+              </Button>
+            )}
           </div>
         ) : (
           <motion.p className={styles.emptyText} variants={child}>

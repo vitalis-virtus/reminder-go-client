@@ -16,7 +16,7 @@ const child = {
   },
 };
 
-function RemindItem({ remind, onUpdateRemind, onDeleteRemind, key }) {
+function RemindItem({ remind, onUpdateRemind, onDeleteRemind }) {
   const [checked, setChecked] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
 
@@ -42,20 +42,14 @@ function RemindItem({ remind, onUpdateRemind, onDeleteRemind, key }) {
 
     onUpdateRemind({
       ...remind,
-      // finished_at:
-      //   remind.finished_at === "" ||
-      //   remind.finished_at === null ||
-      //   remind.finished_at === undefined
-      //     ? moment(new Date()).format("YYYY-DD_MMTHH:MM:SS")
-      //     : "",
       completed: !checked,
     });
   };
 
   return (
     <>
-      <motion.div key={key} variants={child} className={styles.item}>
-        <div className={styles.todoDetails} key={key}>
+      <motion.div variants={child} className={styles.item}>
+        <div className={styles.todoDetails}>
           <div className={styles.todoDescriptionBox}>
             <CheckButton checked={checked} handleCheck={handleCheck} />
 
@@ -80,7 +74,8 @@ function RemindItem({ remind, onUpdateRemind, onDeleteRemind, key }) {
 
             <p className={styles.time}>
               {remind.completed &&
-                moment(remind.finished_at).format("DD-MM-YYYY HH:MM:SS")}
+                "finished at: " +
+                  moment(remind.finished_at).format("DD-MM-YYYY HH:MM:SS")}
             </p>
           </div>
         </div>

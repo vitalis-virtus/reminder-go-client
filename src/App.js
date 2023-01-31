@@ -1,76 +1,68 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import { Toaster } from "react-hot-toast";
 import PageTitle from "./Components/PageTitle";
 import AppHeader from "./Components/AppHeader";
 import AppContent from "./Components/AppContent";
 import styles from "./styles/modules/app.module.scss";
 import axios from "./utils/axios";
-import { initialReminds } from "./static/static";
 import moment from "moment";
 import toast from "react-hot-toast";
 
+import Context from "./utils/context";
+
+const limit = 5;
+
 function App() {
-  // const [reminds, setReminds] = useState(null);
-
   const [reminds, setReminds] = useState([]);
-  const [filteredReminds, setFilteredReminds] = useState([]);
-  const [filter, setFilter] = useState("all");
   const [cursor, setCursor] = useState(0);
-  const [limit, setLimit] = useState(20);
+  const [noMoreReminds, setNoMoreReminds] = useState(true);
 
-  const getAllReminds = async (cursor, limit) => {
-    console.log("getAllReminds");
-    // let limitIter = 0;
+  const [context, setContext] = useState({
+    filter: "all",
+    timeRange: [new Date(), new Date()],
+  });
+
+  useEffect(() => {
+    setReminds([]);
+    setCursor(0);
+  }, [context.filter]);
+
+  // fetch all reminds in first render of app
+  useEffect(() => {
+    getAllReminds();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const getAllReminds = async (cur) => {
     try {
       await axios
         .get(`/remind`, {
           params: {
-            cursor: cursor,
+            cursor: cur !== 0 ? cursor : 0,
             limit: limit,
           },
         })
-        .then((result) => {
-          setFilteredReminds(result.data);
+        .then(({ data }) => {
+          setReminds((prev) =>
+            JSON.stringify(prev) === JSON.stringify(data.todos)
+              ? prev
+              : [...prev, ...data.todos]
+          );
+          checkForMoreReminds(data.pageInfo.nextCursor);
+          setCursor(data.pageInfo.nextCursor);
         });
-      // ! delete
-
-      // setFilteredReminds([
-      //   ...filteredReminds,
-      //   ...initialReminds.filter((remind) => {
-      //     if (remind.id > cursor && limitIter < limit) {
-      //       limitIter++;
-
-      //       return true;
-      //     }
-
-      //     return false;
-      //   }),
-      // ]);
-
-      //! delete
     } catch (error) {
       console.log(error);
     }
-    // setCursor((prev) => {
-    //   return prev + 5;
-    // });
   };
 
-  useEffect(() => {
-    getAllReminds(cursor, limit);
-    // eslint-disable-next-line no-use-before-define, react-hooks/exhaustive-deps
-  }, []); //[] only fires one time when the compent loads
-
   const createRemind = async (data) => {
-    console.log("createRemind");
-    console.log(data);
     try {
-      await axios.post("/remind", data).then((res) => console.log(res));
-      getAllReminds(cursor, limit);
-
-      //!remove
-      // setFilteredReminds((prev) => [data, ...prev]);
-      //!remove
+      console.log(data)
+      await axios.post("/remind", data);
+      if (context.filter === "all" || context.filter === "current") {
+        setReminds((prev) => [data, ...prev]);
+      }
       toast.success("Remind Added Successfully");
     } catch (error) {
       toast.error("Failed To Add Remind");
@@ -79,77 +71,82 @@ function App() {
   };
 
   const updateRemind = async (data) => {
-    console.log("update remind");
-    console.log(data);
     try {
       await axios.put(`/remind/${data.id}`, data);
-      //!delete
-      setFilteredReminds(
-        (prev) =>
+
+      // we change app reminds according to the filter
+      if (context.filter === "current" || context.filter === "completed") {
+        setReminds(reminds.filter((remind) => remind.id !== data.id));
+      } else {
+        setReminds((prev) =>
           prev.map((remind) => {
             if (remind.id === data.id) {
               return { ...remind, ...data };
             }
             return remind;
           })
-        // reminds.map((remind) => {
-        //   if (remind.id === data.id) {
-        //     return { ...remind, ...data };
-        //   }
-        //   return remind;
-        // })
-      );
-      //!delete
+        );
+      }
+
       toast.success("Successfully changed");
     } catch (error) {
       toast.error("No Changes Made");
-
       console.log(error);
     }
   };
 
-  const getCompletedReminds = async (cursor = 0, limit = 10) => {
-    console.log("getCompletedReminds");
-
+  const getCompletedReminds = async (cur, timeRange) => {
     try {
       await axios
-        .get(`/completed?cursor=${cursor}&limit=${limit}`)
-        .then((result) => {
-          console.log(result);
-          setFilteredReminds(result.data);
+        .get(`/completed`, {
+          params: {
+            cursor: cur !== 0 ? cursor : 0,
+            limit: limit,
+            start: moment(timeRange[0]).format("YYYY-MM-DDTHH:MM:SS"),
+            end: moment(timeRange[1]).format("YYYY-MM-DDTHH:MM:SS"),
+          },
+        })
+        .then(({ data }) => {
+          setReminds((prev) =>
+            JSON.stringify(prev) === JSON.stringify(data.todos)
+              ? prev
+              : [...prev, ...data.todos]
+          );
+          checkForMoreReminds(data.pageInfo.nextCursor);
+          setCursor(data.pageInfo.nextCursor);
         });
-      // ! delete
-      // setFilteredReminds(reminds.filter((remind) => remind.completed === true));
-      // ! delete
     } catch (error) {
       console.log(error);
     }
   };
 
-  const getCurrentReminds = async (cursor = 0, limit = 10) => {
-    console.log("getCurrentReminds");
+  const getCurrentReminds = async (cur) => {
     try {
       await axios
-        .get(`/current?cursor=${cursor}&limit=${limit}`)
-        .then((result) => {
-          console.log(result);
-          setFilteredReminds(result.data);
+        .get(`/current`, {
+          params: {
+            cursor: cur !== 0 ? cursor : 0,
+            limit: limit,
+          },
+        })
+        .then(({ data }) => {
+          setReminds((prev) =>
+            JSON.stringify(prev) === JSON.stringify(data.todos)
+              ? prev
+              : [...prev, ...data.todos]
+          );
+          checkForMoreReminds(data.pageInfo.nextCursor);
+          setCursor(data.pageInfo.nextCursor);
         });
-      // ! delete
-      // setFilteredReminds(
-      //   reminds.filter((remind) => remind.completed === false)
-      // );
-      // ! delete
     } catch (error) {
       console.log(error);
     }
   };
 
   const deleteRemind = async (id) => {
-    console.log(`deleted remind with id ${id} from App.js`);
     try {
-      await axios.delete(`/remind/${id}`).then((res) => console.log(res));
-      setFilteredReminds(filteredReminds.filter((remind) => remind.id !== id)); //!remove
+      await axios.delete(`/remind/${id}`);
+      setReminds(reminds.filter((remind) => remind.id !== id));
     } catch (error) {
       console.log(error);
     }
@@ -158,8 +155,8 @@ function App() {
   const onSortReminds = (type) => {
     switch (type) {
       case "deadline":
-        setFilteredReminds(
-          filteredReminds
+        setReminds(
+          reminds
             .slice()
             .sort(
               (a, b) =>
@@ -169,8 +166,8 @@ function App() {
         );
         break;
       case "created":
-        setFilteredReminds(
-          filteredReminds
+        setReminds(
+          reminds
             .slice()
             .sort(
               (a, b) =>
@@ -184,38 +181,49 @@ function App() {
     }
   };
 
-  return (
-    <div className={styles.bg_container}>
-      <div className="container">
-        <PageTitle>Reminder GO</PageTitle>
-        <div className={styles.app__wrapper}>
-          <AppHeader
-            filter={filter}
-            setFilter={setFilter}
-            onCreate={createRemind}
-            onGetAll={getAllReminds}
-            onGetCompleted={getCompletedReminds}
-            onGetCurrent={getCurrentReminds}
-            onSort={onSortReminds}
-          />
-          <AppContent
-            reminds={filteredReminds}
-            onUpdateRemind={updateRemind}
-            onDeleteRemind={deleteRemind}
-            onGetAllreminds={getAllReminds}
-          />
-        </div>
-      </div>
+  const checkForMoreReminds = useCallback((cursor) => {
+    setNoMoreReminds(false);
+    if (cursor === 0) {
+      setNoMoreReminds(true);
+    }
+  }, []);
 
-      <Toaster
-        position="bottom-right"
-        toastOptions={{
-          style: {
-            fontSize: "1.4rem",
-          },
-        }}
-      />
-    </div>
+  return (
+    <Context.Provider value={[context, setContext]}>
+      <div className={styles.bg_container}>
+        <div className="container">
+          <PageTitle>Reminder GO</PageTitle>
+          <div className={styles.app__wrapper}>
+            <AppHeader
+              onCreate={createRemind}
+              onGetAll={getAllReminds}
+              onGetCompleted={getCompletedReminds}
+              onGetCurrent={getCurrentReminds}
+              onSort={onSortReminds}
+            />
+            <AppContent
+              reminds={reminds}
+              onUpdateRemind={updateRemind}
+              onDeleteRemind={deleteRemind}
+              onGetAll={getAllReminds}
+              onGetCompleted={getCompletedReminds}
+              onGetCurrent={getCurrentReminds}
+              noMoreReminds={noMoreReminds}
+              cursor={cursor}
+            />
+          </div>
+        </div>
+
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              fontSize: "1.4rem",
+            },
+          }}
+        />
+      </div>
+    </Context.Provider>
   );
 }
 

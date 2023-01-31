@@ -1,43 +1,57 @@
 /* eslint-disable no-fallthrough */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext, useCallback } from "react";
 import styles from "../styles/modules/app.module.scss";
 import Button, { SelectButton } from "./Button";
 import RemindModal from "./RemindModal";
+import DateTimeRangePicker from "@wojtekmaj/react-datetimerange-picker";
+import moment from "moment";
+
+import Context from "../utils/context";
 
 function AppHeader({
   onCreate,
   onGetAll,
   onGetCompleted,
   onGetCurrent,
-  onSortReminds,
   onSort,
-  filter,
-  setFilter,
 }) {
+  const [context, setContext] = useContext(Context);
   const [modalOpen, setModalOpen] = useState(false);
-  // const [filter, setFilter] = useState(null);
 
-  const updatedFilter = (e) => {
-    e.preventDefault();
-    setFilter(e.target.value);
-  };
+  const updatedFilter = useCallback(
+    (e) => {
+      e.preventDefault();
+      setContext((prevState) => ({ ...prevState, filter: e.target.value }));
+    },
+    [setContext]
+  );
+
+  const onTimeRange = useCallback(
+    (e) => {
+      setContext((prevState) => ({ ...prevState, timeRange: e }));
+    },
+    [setContext]
+  );
 
   useEffect(() => {
-    switch (filter) {
+    switch (context.filter) {
       case "all":
-        onGetAll();
+        onGetAll(0);
         break;
       case "completed":
-        onGetCompleted();
+        onGetCompleted(0, [
+          moment(context.timeRange[0]).format("YYYY-MM-DDTHH:MM"),
+          moment(context.timeRange[1]).format("YYYY-MM-DDTHH:MM"),
+        ]);
+
         break;
       case "current":
-        onGetCurrent();
+        onGetCurrent(0);
 
       default:
         break;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter]);
+  }, [context.filter, context.timeRange]);
 
   return (
     <div className={styles.appHeader}>
@@ -46,24 +60,17 @@ function AppHeader({
       </Button>
 
       <div className={styles.header_button}>
-        {filter === "completed" && (
-          <SelectButton>
-            <option value="today" key="today">
-              Today
-            </option>
-            <option value="lastWeek" key="lastWeek">
-              Last week
-            </option>
-
-            <option value="lastMonth" key="lastMonth">
-              Last month
-            </option>
-          </SelectButton>
+        {context.filter === "completed" && (
+          <DateTimeRangePicker
+            className={styles.timeRange}
+            onChange={onTimeRange}
+            value={context.timeRange}
+            clearIcon={null}
+          />
         )}
 
-        {filter === "current" && (
+        {context.filter === "current" && (
           <div>
-            {/* <p>Sort by</p> */}
             <SelectButton
               id="filter"
               onChange={(e) => {
