@@ -1,4 +1,4 @@
-//YYYY-DD-MM
+//test reminds for development
 
 export const initialReminds = [
   {
