@@ -58,7 +58,7 @@ function App() {
 
   const createRemind = async (data) => {
     try {
-      console.log(data)
+      console.log(data);
       await axios.post("/remind", data);
       if (context.filter === "all" || context.filter === "current") {
         setReminds((prev) => [data, ...prev]);
@@ -107,11 +107,15 @@ function App() {
           },
         })
         .then(({ data }) => {
-          setReminds((prev) =>
-            JSON.stringify(prev) === JSON.stringify(data.todos)
-              ? prev
-              : [...prev, ...data.todos]
-          );
+          if (cur === 0) {
+            setReminds(data.todos);
+          } else {
+            setReminds((prev) =>
+              JSON.stringify(prev) === JSON.stringify(data.todos)
+                ? prev
+                : [...prev, ...data.todos]
+            );
+          }
           checkForMoreReminds(data.pageInfo.nextCursor);
           setCursor(data.pageInfo.nextCursor);
         });

@@ -77,11 +77,11 @@ function AppHeader({
                 onSort(e.target.value);
               }}
             >
-              <option value="created" key="created">
-                Created
-              </option>
               <option value="deadline" key="deadline">
                 Deadline
+              </option>
+              <option value="created" key="created">
+                Created
               </option>
             </SelectButton>
           </div>
